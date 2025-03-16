@@ -1,21 +1,40 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Code2, Database, Cloud } from 'lucide-react';
+import { CheckCircle2, Code2, Database } from 'lucide-react';
 import type { ProjectScope } from '../../../../types/onboarding';
 
 interface ProjectScopeStepProps {
   data: ProjectScope;
-  onChange: (data: ProjectScope) => void;
+  onChange: (updates: { projectScope: ProjectScope }) => void;
   errors: Record<string, string>;
 }
 
 const ProjectScopeStep: React.FC<ProjectScopeStepProps> = ({ data, onChange, errors }) => {
-  const handleArrayChange = (field: keyof ProjectScope, value: string) => {
-    const currentValues = data[field] || [];
+  const handleArrayChange = (field: keyof Pick<ProjectScope, 'categories' | 'techStack'>, value: string) => {
+    const currentValues = Array.isArray(data[field]) ? data[field] as string[] : [];
     const newValues = currentValues.includes(value)
-      ? currentValues.filter((v) => v !== value)
+      ? currentValues.filter((v: string) => v !== value)
       : [...currentValues, value];
-    onChange({ ...data, [field]: newValues });
+    
+    onChange({
+      projectScope: {
+        ...data,
+        [field]: newValues
+      }
+    });
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    onChange({
+      projectScope: {
+        ...data,
+        description: value
+      }
+    });
+  };
+
+  const getFieldError = (field: keyof ProjectScope) => {
+    return errors[`projectScope.${field}`];
   };
 
   return (
@@ -72,8 +91,8 @@ const ProjectScopeStep: React.FC<ProjectScopeStepProps> = ({ data, onChange, err
               </label>
             ))}
           </div>
-          {errors.categories && (
-            <p className="mt-1 text-sm text-red-500">{errors.categories}</p>
+          {getFieldError('categories') && (
+            <p className="mt-1 text-sm text-red-500">{getFieldError('categories')}</p>
           )}
         </div>
 
@@ -84,15 +103,15 @@ const ProjectScopeStep: React.FC<ProjectScopeStepProps> = ({ data, onChange, err
           <textarea
             id="description"
             value={data.description}
-            onChange={(e) => onChange({ ...data, description: e.target.value })}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
             rows={4}
             className={`w-full bg-deep-brown-200/40 border ${
-              errors.description ? 'border-red-500' : 'border-white/10'
+              getFieldError('description') ? 'border-red-500' : 'border-white/10'
             } rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50`}
             placeholder="Describe your project requirements and goals..."
           />
-          {errors.description && (
-            <p className="mt-1 text-sm text-red-500">{errors.description}</p>
+          {getFieldError('description') && (
+            <p className="mt-1 text-sm text-red-500">{getFieldError('description')}</p>
           )}
         </div>
 
@@ -134,8 +153,8 @@ const ProjectScopeStep: React.FC<ProjectScopeStepProps> = ({ data, onChange, err
               </label>
             ))}
           </div>
-          {errors.techStack && (
-            <p className="mt-1 text-sm text-red-500">{errors.techStack}</p>
+          {getFieldError('techStack') && (
+            <p className="mt-1 text-sm text-red-500">{getFieldError('techStack')}</p>
           )}
         </div>
       </div>

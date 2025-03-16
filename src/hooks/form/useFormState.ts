@@ -1,69 +1,125 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import type { OnboardingData } from '../../types/onboarding';
-import { useFormReset, initialFormData } from './useFormReset';
+import { useState } from 'react';
+import { OnboardingData } from '../../types/onboarding';
+import { submitOnboardingData } from '../../services/api';
 
-export const useFormState = (onComplete?: () => void) => {
+const initialFormData: OnboardingData = {
+  projectScope: {
+    categories: [],
+    description: '',
+    techStack: []
+  },
+  businessGoals: {
+    goals: [],
+    targetAudience: '',
+    successCriteria: ''
+  },
+  technicalSpecs: {
+    platforms: {
+      web: false,
+      ios: false,
+      android: false,
+      desktop: false
+    },
+    integrations: [],
+    security: {
+      compliance: [],
+      authentication: [],
+      dataProtection: []
+    },
+    scale: {
+      users: 0,
+      storage: 0,
+      bandwidth: 0
+    }
+  },
+  contactInfo: {
+    name: '',
+    email: '',
+    company: '',
+    phone: '',
+    preferredContact: 'email'
+  }
+};
+
+type RecursivePartial<T> = {
+  [P in keyof T]?: T[P] extends (infer U)[]
+    ? RecursivePartial<U>[]
+    : T[P] extends object
+    ? RecursivePartial<T[P]>
+    : T[P];
+};
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function deepMerge<T extends object>(target: T, source: RecursivePartial<T>): T {
+  const output = { ...target };
+
+  for (const key in source) {
+    if (!(key in target)) continue;
+
+    const targetValue = target[key as keyof T];
+    const sourceValue = source[key as keyof RecursivePartial<T>];
+
+    if (sourceValue === undefined) continue;
+
+    if (isObject(targetValue) && isObject(sourceValue)) {
+      (output as any)[key] = deepMerge(
+        targetValue as object,
+        sourceValue as RecursivePartial<typeof targetValue>
+      );
+    } else {
+      (output as any)[key] = sourceValue;
+    }
+  }
+
+  return output;
+}
+
+export const useFormState = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState<OnboardingData>(initialFormData);
-  
-  const resetTimeoutRef = useRef<number>();
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleNext = useCallback(() => {
-    setCurrentStep(prev => Math.min(prev + 1, 6));
-  }, []);
+  const updateFormData = (updates: RecursivePartial<OnboardingData>) => {
+    setFormData(prevData => deepMerge(prevData, updates));
+  };
 
-  const handlePrevious = useCallback(() => {
+  const handleNext = () => {
+    setCurrentStep(prev => Math.min(prev + 1, 5));
+  };
+
+  const handlePrevious = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
-  }, []);
+  };
 
-  const updateFormData = useCallback((field: keyof OnboardingData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  }, []);
-
-  const resetForm = useFormReset(setCurrentStep, setFormData, setIsSuccess, onComplete);
-
-  const handleSubmit = useCallback(async () => {
-    if (isSubmitting) return;
-    
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       setIsSubmitting(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await submitOnboardingData(formData);
       setIsSuccess(true);
-      
-      if (resetTimeoutRef.current) {
-        window.clearTimeout(resetTimeoutRef.current);
-      }
-      
-      resetTimeoutRef.current = window.setTimeout(() => {
-        resetForm();
-        resetTimeoutRef.current = undefined;
-      }, 2000);
-      
+      setError(null);
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Error submitting form:', error);
+      setError('Failed to submit form. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  }, [resetForm, isSubmitting]);
-
-  useEffect(() => {
-    return () => {
-      if (resetTimeoutRef.current) {
-        window.clearTimeout(resetTimeoutRef.current);
-      }
-    };
-  }, []);
+  };
 
   return {
     currentStep,
     formData,
-    isSubmitting,
     isSuccess,
+    isSubmitting,
+    error,
+    updateFormData,
     handleNext,
     handlePrevious,
-    updateFormData,
     handleSubmit
   };
 };

@@ -7,15 +7,29 @@ const initialFormData: OnboardingData = {
     description: '',
     techStack: []
   },
-  budgetTimeline: {
-    budget: '',
-    timeline: '',
-    teamSize: ''
-  },
   businessGoals: {
     goals: [],
     targetAudience: '',
     successCriteria: ''
+  },
+  technicalSpecs: {
+    platforms: {
+      web: false,
+      ios: false,
+      android: false,
+      desktop: false
+    },
+    integrations: [],
+    security: {
+      compliance: [],
+      authentication: [],
+      dataProtection: []
+    },
+    scale: {
+      users: 0,
+      storage: 0,
+      bandwidth: 0
+    }
   },
   contactInfo: {
     name: '',
@@ -40,8 +54,11 @@ export const useFormState = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   }, []);
 
-  const updateFormData = useCallback((field: keyof OnboardingData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const updateFormData = useCallback((updates: Partial<OnboardingData>) => {
+    setFormData(prev => ({
+      ...prev,
+      ...updates
+    }));
   }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {

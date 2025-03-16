@@ -1,31 +1,65 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Mail, Phone, MapPin, Send, ArrowRight, MessageSquare, Calendar, Building2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, ArrowRight } from 'lucide-react';
+import { submitContactForm } from '../services/api';
+
+interface ContactFormData {
+  email: string;
+  name: string;
+  company: string;
+  phone: string;
+  message: string;
+}
 
 interface ContactProps {
   onGetStarted: () => void;
 }
 
 const Contact: React.FC<ContactProps> = ({ onGetStarted }) => {
-  const [formData, setFormData] = useState({
-    name: '',
+  const [formData, setFormData] = useState<ContactFormData>({
     email: '',
+    name: '',
     company: '',
     phone: '',
-    subject: '',
-    message: '',
-    preferredContact: 'email'
+    message: ''
   });
+
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setStatus('submitting');
+    setErrorMessage('');
+
+    try {
+      const response = await submitContactForm(formData);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      setStatus('success');
+      setFormData({
+        email: '',
+        name: '',
+        company: '',
+        phone: '',
+        message: ''
+      });
+    } catch (error) {
+      setStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit form');
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -130,8 +164,9 @@ const Contact: React.FC<ContactProps> = ({ onGetStarted }) => {
                 <input
                   type="text"
                   id="name"
+                  name="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={handleChange}
                   className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50"
                   placeholder="John Doe"
                   required
@@ -145,8 +180,9 @@ const Contact: React.FC<ContactProps> = ({ onGetStarted }) => {
                 <input
                   type="email"
                   id="email"
+                  name="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={handleChange}
                   className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50"
                   placeholder="john@example.com"
                   required
@@ -160,8 +196,9 @@ const Contact: React.FC<ContactProps> = ({ onGetStarted }) => {
                 <input
                   type="text"
                   id="company"
+                  name="company"
                   value={formData.company}
-                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                  onChange={handleChange}
                   className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50"
                   placeholder="Your Company"
                 />
@@ -174,25 +211,11 @@ const Contact: React.FC<ContactProps> = ({ onGetStarted }) => {
                 <input
                   type="tel"
                   id="phone"
+                  name="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={handleChange}
                   className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50"
                   placeholder="+1 (555) 000-0000"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">
-                  Subject *
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50"
-                  placeholder="How can we help?"
-                  required
                 />
               </div>
 
@@ -202,59 +225,45 @@ const Contact: React.FC<ContactProps> = ({ onGetStarted }) => {
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  onChange={handleChange}
                   rows={6}
                   className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50"
                   placeholder="Tell us about your project, goals, and timeline..."
                   required
                 />
               </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-3">
-                  Preferred Contact Method
-                </label>
-                <div className="flex flex-wrap gap-4">
-                  {[
-                    { value: 'email', label: 'Email', icon: <Mail className="w-5 h-5" /> },
-                    { value: 'phone', label: 'Phone', icon: <Phone className="w-5 h-5" /> },
-                    { value: 'meeting', label: 'Meeting', icon: <Calendar className="w-5 h-5" /> }
-                  ].map((option) => (
-                    <label
-                      key={option.value}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-colors ${
-                        formData.preferredContact === option.value
-                          ? 'border-accent text-accent'
-                          : 'border-white/10 text-gray-300 hover:border-accent/50'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="preferredContact"
-                        value={option.value}
-                        checked={formData.preferredContact === option.value}
-                        onChange={(e) => setFormData({ ...formData, preferredContact: e.target.value })}
-                        className="hidden"
-                      />
-                      {option.icon}
-                      {option.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
             </div>
 
             <div className="mt-8">
               <button
                 type="submit"
-                className="w-full bg-accent hover:bg-accent/90 text-white px-8 py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                disabled={status === 'submitting'}
+                className="w-full bg-accent hover:bg-accent/90 text-white px-8 py-4 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
               >
-                Send Message <Send className="w-5 h-5" />
+                {status === 'submitting' ? (
+                  <span>Sending...</span>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5" />
+                    <span>Send Message</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
               </button>
-              <p className="text-gray-400 text-sm text-center mt-4">
-                We'll get back to you within 24-48 business hours
-              </p>
+
+              {status === 'success' && (
+                <div className="text-green-500 text-center mt-4">
+                  Message sent successfully!
+                </div>
+              )}
+
+              {status === 'error' && (
+                <div className="text-red-500 text-center mt-4">
+                  {errorMessage || 'Failed to send message. Please try again.'}
+                </div>
+              )}
             </div>
           </motion.form>
         </div>

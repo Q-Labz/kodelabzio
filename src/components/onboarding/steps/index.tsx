@@ -1,61 +1,55 @@
 import React from 'react';
-import type { OnboardingData } from '../../../types/onboarding';
-import WelcomeStep from './WelcomeStep';
-import ClientInfoStep from './ClientInfoStep';
-import DesignPreferencesStep from './DesignPreferencesStep';
-import TechnicalRequirementsStep from './TechnicalRequirementsStep';
-import ProjectScopeStep from './ProjectScopeStep';
-import SummaryStep from './SummaryStep';
+import type { OnboardingData, ProjectScope, BusinessRequirements, TechnicalSpecs } from '../../../types/onboarding';
+import { WelcomeStep, ProjectScopeStep, BusinessRequirementsStep, TechnicalSpecsStep } from './components';
 
-interface RenderStepProps {
-  step: number;
+interface StepProps {
   data: OnboardingData;
-  onChange: (field: keyof OnboardingData, value: any) => void;
-  onNext: () => void;
+  onChange: (data: Partial<OnboardingData>) => void;
+  onNext?: () => void;
   errors: Record<string, string>;
 }
 
-export const renderStep = ({ step, data, onChange, onNext, errors }: RenderStepProps) => {
+export const renderStep = (step: number, props: StepProps): React.ReactNode => {
   switch (step) {
     case 1:
-      return <WelcomeStep onNext={onNext} />;
+      return <WelcomeStep onNext={props.onNext ?? (() => {})} />;
     case 2:
       return (
-        <ClientInfoStep
-          data={data.clientInfo}
-          onChange={(value) => onChange('clientInfo', value)}
-          errors={errors}
+        <ProjectScopeStep
+          data={props.data.projectScope}
+          onChange={(value: Partial<ProjectScope>) => props.onChange({
+            projectScope: {
+              ...props.data.projectScope,
+              ...value
+            }
+          })}
+          errors={props.errors}
         />
       );
     case 3:
       return (
-        <DesignPreferencesStep
-          data={data.designPreferences}
-          onChange={(value) => onChange('designPreferences', value)}
-          errors={errors}
+        <BusinessRequirementsStep
+          data={props.data.businessRequirements}
+          onChange={(value: Partial<BusinessRequirements>) => props.onChange({
+            businessRequirements: {
+              ...props.data.businessRequirements,
+              ...value
+            }
+          })}
+          errors={props.errors}
         />
       );
     case 4:
       return (
-        <TechnicalRequirementsStep
-          data={data.technicalRequirements}
-          onChange={(value) => onChange('technicalRequirements', value)}
-          errors={errors}
-        />
-      );
-    case 5:
-      return (
-        <ProjectScopeStep
-          data={data.projectScope}
-          onChange={(value) => onChange('projectScope', value)}
-          errors={errors}
-        />
-      );
-    case 6:
-      return (
-        <SummaryStep
-          data={data}
-          onSubmit={() => {}}
+        <TechnicalSpecsStep
+          data={props.data.technicalSpecs}
+          onChange={(value: Partial<TechnicalSpecs>) => props.onChange({
+            technicalSpecs: {
+              ...props.data.technicalSpecs,
+              ...value
+            }
+          })}
+          errors={props.errors}
         />
       );
     default:

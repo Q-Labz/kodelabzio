@@ -3,63 +3,93 @@ import { z } from 'zod';
 import type { OnboardingData } from '../types/onboarding';
 
 const clientInfoSchema = z.object({
-  name: z.string().min(2, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  company: z.string().min(2, 'Company name is required'),
-  phone: z.string().min(10, 'Valid phone number is required'),
+  companyName: z.string().min(2, 'Company name is required'),
   industry: z.string().min(2, 'Industry is required'),
-  projectName: z.string().min(2, 'Project name is required')
-});
-
-const designPreferencesSchema = z.object({
-  style: z.string().min(2, 'Style preference is required'),
-  colorScheme: z.string().min(2, 'Color scheme is required'),
-  inspiration: z.array(z.string()).min(1, 'At least one inspiration is required'),
-  brandGuidelines: z.any().optional()
-});
-
-const technicalRequirementsSchema = z.object({
-  platform: z.array(z.string()).min(1, 'At least one platform is required'),
-  features: z.array(z.string()).min(1, 'At least one feature is required'),
-  integrations: z.array(z.string()).optional(),
-  security: z.array(z.string()).optional()
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(10, 'Valid phone number is required'),
+  preferredContact: z.string().min(2, 'Preferred contact is required')
 });
 
 const projectScopeSchema = z.object({
-  timeline: z.string().min(2, 'Timeline is required'),
-  budget: z.string().min(2, 'Budget is required'),
-  team: z.string().min(2, 'Team size is required'),
-  milestones: z.array(z.string()).min(1, 'At least one milestone is required')
+  categories: z.array(z.string()).min(1, 'At least one category is required'),
+  description: z.string().min(2, 'Description is required'),
+  budget: z.object({
+    min: z.number().gt(0, 'Minimum budget is required'),
+    max: z.number().gt(0, 'Maximum budget is required')
+  }),
+  techStack: z.array(z.string()).min(1, 'At least one tech stack is required')
+});
+
+const businessRequirementsSchema = z.object({
+  goals: z.array(z.string()).min(1, 'At least one goal is required'),
+  targetAudience: z.string().min(2, 'Target audience is required'),
+  successMetrics: z.array(z.string()).min(1, 'At least one success metric is required')
+});
+
+const technicalSpecsSchema = z.object({
+  platforms: z.string().min(2, 'Platforms are required'),
+  integrations: z.array(z.string()).min(1, 'At least one integration is required'),
+  security: z.string().min(2, 'Security is required'),
+  scale: z.string().min(2, 'Scale is required')
 });
 
 export const useOnboardingValidation = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validateStep = useCallback((step: number, data: OnboardingData): boolean => {
+  const validateClientInfo = useCallback((data: OnboardingData): boolean => {
     try {
-      setErrors({});
-
-      switch (step) {
-        case 1:
-          return true;
-        case 2:
-          clientInfoSchema.parse(data.clientInfo);
-          break;
-        case 3:
-          designPreferencesSchema.parse(data.designPreferences);
-          break;
-        case 4:
-          technicalRequirementsSchema.parse(data.technicalRequirements);
-          break;
-        case 5:
-          projectScopeSchema.parse(data.projectScope);
-          break;
-        case 6:
-          return true;
-        default:
-          return false;
+      clientInfoSchema.parse(data.clientInfo);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          const path = err.path.join('.');
+          newErrors[path] = err.message;
+        });
+        setErrors(newErrors);
       }
+      return false;
+    }
+  }, []);
 
+  const validateProjectScope = useCallback((data: OnboardingData): boolean => {
+    try {
+      projectScopeSchema.parse(data.projectScope);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          const path = err.path.join('.');
+          newErrors[path] = err.message;
+        });
+        setErrors(newErrors);
+      }
+      return false;
+    }
+  }, []);
+
+  const validateBusinessRequirements = useCallback((data: OnboardingData): boolean => {
+    try {
+      businessRequirementsSchema.parse(data.businessRequirements);
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          const path = err.path.join('.');
+          newErrors[path] = err.message;
+        });
+        setErrors(newErrors);
+      }
+      return false;
+    }
+  }, []);
+
+  const validateTechnicalSpecs = useCallback((data: OnboardingData): boolean => {
+    try {
+      technicalSpecsSchema.parse(data.technicalSpecs);
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -75,7 +105,10 @@ export const useOnboardingValidation = () => {
   }, []);
 
   return {
-    validateStep,
+    validateClientInfo,
+    validateProjectScope,
+    validateBusinessRequirements,
+    validateTechnicalSpecs,
     errors
   };
 };

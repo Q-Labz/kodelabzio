@@ -1,4 +1,13 @@
-export const steps = [
+import type { OnboardingData } from '../../../types/onboarding';
+
+export interface Step {
+  id: number;
+  title: string;
+  description: string;
+  field?: keyof OnboardingData;
+}
+
+export const steps: Step[] = [
   {
     id: 1,
     title: 'Welcome',
@@ -7,26 +16,25 @@ export const steps = [
   {
     id: 2,
     title: 'Client Info',
-    description: 'Basic information'
+    description: 'Basic information',
+    field: 'clientInfo'
   },
   {
     id: 3,
-    title: 'Design',
-    description: 'Design preferences'
+    title: 'Project Scope',
+    description: 'Project requirements',
+    field: 'projectScope'
   },
   {
     id: 4,
-    title: 'Technical',
-    description: 'Technical requirements'
+    title: 'Business Requirements',
+    description: 'Goals and target audience',
+    field: 'businessRequirements'
   },
   {
     id: 5,
-    title: 'Scope',
-    description: 'Project scope'
-  },
-  {
-    id: 6,
-    title: 'Summary',
-    description: 'Review & submit'
+    title: 'Technical Specs',
+    description: 'Technical requirements',
+    field: 'technicalSpecs'
   }
 ];

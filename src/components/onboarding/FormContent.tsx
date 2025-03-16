@@ -1,59 +1,91 @@
-import React, { memo } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import type { OnboardingData } from '../../types/onboarding';
-import { createFadeVariants } from './animations/variants';
-import { useAnimationConfig } from './hooks/useAnimationConfig';
-import StepContent from './StepContent';
-import SuccessMessage from './SuccessMessage';
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { OnboardingData, OnboardingStep } from '../../types/onboarding';
+import {
+  ProjectScopeStep,
+  BusinessGoalsStep,
+  TechnicalSpecsStep,
+  ContactInfoStep,
+  SuccessStep
+} from './steps';
+import { slideVariants } from './animations';
 
 interface FormContentProps {
-  isSuccess: boolean;
-  direction: number;
-  currentStep: number;
+  currentStep: OnboardingStep;
   formData: OnboardingData;
-  updateFormData: (field: keyof OnboardingData, value: any) => void;
-  handleNextStep: () => void;
-  errors: Record<string, string>;
+  updateFormData: (step: OnboardingStep, updates: Partial<OnboardingData[keyof OnboardingData]>) => void;
+  errors: Record<string, string[]>;
+  onNext: () => void;
 }
 
 const FormContent: React.FC<FormContentProps> = ({
-  isSuccess,
-  direction,
   currentStep,
   formData,
   updateFormData,
-  handleNextStep,
-  errors
+  errors,
+  onNext
 }) => {
-  const prefersReducedMotion = useReducedMotion();
-  const { transition } = useAnimationConfig();
-  const fadeVariants = createFadeVariants(Boolean(prefersReducedMotion));
+  const renderStep = () => {
+    switch (currentStep) {
+      case 'projectScope':
+        return (
+          <ProjectScopeStep
+            data={formData.projectScope}
+            updateData={(updates) => updateFormData('projectScope', updates)}
+            errors={errors}
+            onNext={onNext}
+          />
+        );
+      case 'businessGoals':
+        return (
+          <BusinessGoalsStep
+            data={formData.businessGoals}
+            updateData={(updates) => updateFormData('businessGoals', updates)}
+            errors={errors}
+            onNext={onNext}
+          />
+        );
+      case 'technicalSpecs':
+        return (
+          <TechnicalSpecsStep
+            data={formData.technicalSpecs}
+            updateData={(updates) => updateFormData('technicalSpecs', updates)}
+            errors={errors}
+            onNext={onNext}
+          />
+        );
+      case 'contactInfo':
+        return (
+          <ContactInfoStep
+            data={formData.contactInfo}
+            updateData={(updates) => updateFormData('contactInfo', updates)}
+            errors={errors}
+            onNext={onNext}
+          />
+        );
+      case 'success':
+        return <SuccessStep />;
+      default:
+        return null;
+    }
+  };
 
   return (
-    <AnimatePresence mode="wait" custom={direction}>
-      {isSuccess ? (
+    <div className="w-full max-w-2xl mx-auto">
+      <AnimatePresence mode="wait">
         <motion.div
-          key="success"
-          variants={fadeVariants}
-          initial="hidden"
-          animate="visible"
+          key={currentStep}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
           exit="exit"
-          transition={transition}
+          className="w-full"
         >
-          <SuccessMessage />
+          {renderStep()}
         </motion.div>
-      ) : (
-        <StepContent
-          currentStep={currentStep}
-          direction={direction}
-          formData={formData}
-          updateFormData={updateFormData}
-          handleNextStep={handleNextStep}
-          errors={errors}
-        />
-      )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </div>
   );
 };
 
-export default memo(FormContent);
+export default FormContent;

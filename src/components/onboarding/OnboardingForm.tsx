@@ -1,86 +1,97 @@
-import React, { useCallback } from 'react';
-import { motion } from 'framer-motion';
+import React, { useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useFormState } from '../../hooks/form/useFormState';
-import { useFormStep } from '../../hooks/form/useFormStep';
-import { useFormSubmission } from '../../hooks/form/useFormSubmission';
-import { useFormValidation } from '../../hooks/useFormValidation';
+import { useFormValidation } from '../../hooks/form/useFormValidation';
+import { OnboardingData } from '../../types/onboarding';
 import ProgressIndicator from './ProgressIndicator';
 import FormContent from './FormContent';
 import FormNavigation from './FormNavigation';
 import { steps } from './steps/config';
-import ErrorBoundary from '../ErrorBoundary';
+import { slideVariants, fadeVariants } from './animations';
+import { toast } from 'react-hot-toast';
 
-interface OnboardingFormProps {
-  onComplete?: () => void;
-}
-
-const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
+const OnboardingForm: React.FC = () => {
   const {
     currentStep,
     formData,
     isSubmitting,
     isSuccess,
+    error,
+    updateFormData,
     handleNext,
     handlePrevious,
-    updateFormData,
     handleSubmit
-  } = useFormState(onComplete);
+  } = useFormState();
 
   const { errors, validateStep } = useFormValidation();
 
-  const { handleNextStep, isStepValid } = useFormStep(
-    currentStep,
-    validateStep,
-    formData,
-    handleNext
-  );
+  // Memoize validation check
+  const isStepValid = useMemo(() => {
+    return validateStep(currentStep, formData);
+  }, [currentStep, formData, validateStep]);
 
-  const onSubmit = useFormSubmission(
-    currentStep,
-    formData,
-    validateStep,
-    handleSubmit
-  );
+  // Memoize next step handler
+  const handleNextStep = useCallback(() => {
+    if (validateStep(currentStep, formData)) {
+      handleNext();
+    }
+  }, [currentStep, formData, validateStep, handleNext]);
 
-  const formVariants = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: 0 }
-  };
+  // Show error toast when form submission fails
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   return (
-    <ErrorBoundary>
-      <motion.form
-        onSubmit={onSubmit}
-        className="relative"
-        variants={formVariants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-      >
-        <ProgressIndicator steps={steps} currentStep={currentStep} />
-        
-        <FormContent
-          isSuccess={isSuccess}
-          currentStep={currentStep}
-          formData={formData}
-          updateFormData={updateFormData}
-          handleNextStep={handleNextStep}
-          errors={errors}
-        />
-
-        {!isSuccess && currentStep > 1 && (
-          <FormNavigation
+    <motion.form
+      onSubmit={handleSubmit}
+      className="max-w-4xl mx-auto"
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={fadeVariants}
+    >
+      <ProgressIndicator steps={steps} currentStep={currentStep} />
+      
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentStep}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          variants={slideVariants}
+          custom={currentStep}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30
+          }}
+          className="mt-8 bg-deep-brown-200/40 backdrop-blur-sm p-8 rounded-xl border border-white/20"
+        >
+          <FormContent
             currentStep={currentStep}
-            isSubmitting={isSubmitting}
-            handlePrevious={handlePrevious}
+            formData={formData}
+            updateFormData={updateFormData}
             handleNextStep={handleNextStep}
-            isValid={isStepValid()}
+            errors={errors}
+            isSuccess={isSuccess}
           />
-        )}
-      </motion.form>
-    </ErrorBoundary>
+        </motion.div>
+      </AnimatePresence>
+
+      {!isSuccess && currentStep > 1 && (
+        <FormNavigation
+          currentStep={currentStep}
+          isSubmitting={isSubmitting}
+          handlePrevious={handlePrevious}
+          handleNextStep={handleNextStep}
+          isValid={isStepValid}
+        />
+      )}
+    </motion.form>
   );
 };
 
-export default React.memo(OnboardingForm);
+export default OnboardingForm;

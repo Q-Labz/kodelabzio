@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 interface FormFieldProps {
-  id: string;
+  id?: string;
   label: string;
   icon?: LucideIcon;
   error?: string;

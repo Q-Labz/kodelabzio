@@ -2,34 +2,52 @@ import { useState, useCallback } from 'react';
 import { z } from 'zod';
 import type { OnboardingData } from '../types/onboarding';
 
-const clientInfoSchema = z.object({
+const projectScopeSchema = z.object({
+  categories: z.array(z.string()).min(1, 'Please select at least one project type'),
+  description: z.string().min(20, 'Please provide a detailed project description (at least 20 characters)'),
+  techStack: z.array(z.string()).min(1, 'Please select at least one technology')
+});
+
+const businessGoalsSchema = z.object({
+  goals: z.array(z.string()).min(1, 'Please add at least one business goal'),
+  targetAudience: z.string().min(10, 'Please describe your target audience'),
+  successCriteria: z.string().min(10, 'Please describe your success criteria')
+});
+
+const technicalSpecsSchema = z.object({
+  platforms: z.object({
+    web: z.boolean(),
+    ios: z.boolean(),
+    android: z.boolean(),
+    desktop: z.boolean()
+  }).refine(data => Object.values(data).some(Boolean), {
+    message: 'At least one platform must be selected'
+  }),
+  integrations: z.array(z.object({
+    name: z.string().min(2, 'Integration name is required'),
+    type: z.string().min(2, 'Integration type is required'),
+    priority: z.enum(['high', 'medium', 'low'])
+  })),
+  security: z.object({
+    compliance: z.array(z.string()),
+    authentication: z.array(z.string()).min(1, 'At least one authentication method is required'),
+    dataProtection: z.array(z.string()).min(1, 'At least one data protection measure is required')
+  }),
+  scale: z.object({
+    users: z.number().min(0, 'Expected users must be non-negative'),
+    storage: z.number().min(0, 'Storage requirements must be non-negative'),
+    bandwidth: z.number().min(0, 'Bandwidth requirements must be non-negative')
+  })
+});
+
+const contactInfoSchema = z.object({
   name: z.string().min(2, 'Name is required'),
   email: z.string().email('Invalid email address'),
   company: z.string().min(2, 'Company name is required'),
   phone: z.string().min(10, 'Valid phone number is required'),
-  industry: z.string().min(2, 'Industry is required'),
-  projectName: z.string().min(2, 'Project name is required')
-});
-
-const designPreferencesSchema = z.object({
-  style: z.string().min(2, 'Style preference is required'),
-  colorScheme: z.string().min(2, 'Color scheme is required'),
-  inspiration: z.array(z.string()).min(1, 'At least one inspiration is required'),
-  brandGuidelines: z.any().optional()
-});
-
-const technicalRequirementsSchema = z.object({
-  platform: z.array(z.string()).min(1, 'At least one platform is required'),
-  features: z.array(z.string()).min(1, 'At least one feature is required'),
-  integrations: z.array(z.string()).optional(),
-  security: z.array(z.string()).optional()
-});
-
-const projectScopeSchema = z.object({
-  timeline: z.string().min(2, 'Timeline is required'),
-  budget: z.string().min(2, 'Budget is required'),
-  team: z.string().min(2, 'Team size is required'),
-  milestones: z.array(z.string()).min(1, 'At least one milestone is required')
+  preferredContact: z.enum(['email', 'phone', 'messaging'], {
+    required_error: 'Preferred contact method is required'
+  })
 });
 
 export const useFormValidation = () => {
@@ -42,18 +60,34 @@ export const useFormValidation = () => {
       switch (step) {
         case 1:
           return true; // Welcome step, no validation needed
-        case 2:
-          clientInfoSchema.parse(data.clientInfo);
+        case 2: {
+          const result = projectScopeSchema.safeParse(data.projectScope);
+          if (!result.success) {
+            throw result.error;
+          }
           break;
-        case 3:
-          designPreferencesSchema.parse(data.designPreferences);
+        }
+        case 3: {
+          const result = businessGoalsSchema.safeParse(data.businessGoals);
+          if (!result.success) {
+            throw result.error;
+          }
           break;
-        case 4:
-          technicalRequirementsSchema.parse(data.technicalRequirements);
+        }
+        case 4: {
+          const result = technicalSpecsSchema.safeParse(data.technicalSpecs);
+          if (!result.success) {
+            throw result.error;
+          }
           break;
-        case 5:
-          projectScopeSchema.parse(data.projectScope);
+        }
+        case 5: {
+          const result = contactInfoSchema.safeParse(data.contactInfo);
+          if (!result.success) {
+            throw result.error;
+          }
           break;
+        }
         default:
           return true;
       }
