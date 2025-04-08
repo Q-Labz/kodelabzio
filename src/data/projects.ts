@@ -131,45 +131,5 @@ export const projects = [
     demoUrl: 'https://diligentsecurityservices.com',
     websiteUrl: 'https://diligentsecurityservices.com',
     githubUrl: 'https://github.com/example/diligent-security'
-  },
-  {
-    title: 'Sierra Medical Group',
-    slug: 'sierra-medical-group',
-    category: 'Healthcare IT Solutions',
-    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800&h=600',
-    description: 'Patient portal and telehealth integration for a growing medical practice.',
-    longDescription: 'Sierra Medical Group needed to modernize their patient experience while ensuring HIPAA compliance and data security. We developed a comprehensive telehealth solution that integrated with their existing systems, allowing for secure video consultations, appointment scheduling, and medical record access.',
-    objectives: [
-      'Create HIPAA-compliant patient portal',
-      'Implement secure telehealth capabilities',
-      'Integrate with existing EHR system',
-      'Provide mobile access for patients'
-    ],
-    challenges: [
-      'Strict regulatory compliance requirements',
-      'Complex integration with legacy systems',
-      'High security and privacy standards',
-      'Need for intuitive user experience'
-    ],
-    solutions: [
-      'Developed custom patient portal with end-to-end encryption',
-      'Created seamless API integrations with existing EHR',
-      'Implemented multi-factor authentication',
-      'Designed intuitive UI/UX for all age groups'
-    ],
-    results: [
-      '30% reduction in administrative phone calls',
-      '25% increase in appointment adherence',
-      '95% patient satisfaction rating',
-      'Successful audit by healthcare compliance authorities'
-    ],
-    technologies: ['React', 'Node.js', 'PostgreSQL', 'WebRTC', 'FHIR API'],
-    timeline: '6 months',
-    teamSize: '8 specialists',
-    location: 'Los Angeles, CA',
-    industry: 'Healthcare',
-    demoUrl: 'https://sierramedicalgroup.com',
-    websiteUrl: 'https://sierramedicalgroup.com',
-    githubUrl: 'https://github.com/example/sierra-medical'
   }
 ];
