@@ -40,7 +40,8 @@ export const projects = [
     teamSize: '6 specialists',
     location: 'Fontana, CA',
     industry: 'Non-profit',
-    demoUrl: 'https://example.com/bgc-fontana',
+    demoUrl: 'https://bgcfontana.org',
+    websiteUrl: 'https://bgcfontana.org',
     githubUrl: 'https://github.com/example/bgc-fontana'
   },
   {
@@ -83,7 +84,8 @@ export const projects = [
     teamSize: '7 specialists',
     location: 'San Diego, CA',
     industry: 'Manufacturing',
-    demoUrl: 'https://example.com/youngs-precision',
+    demoUrl: 'https://yptgrind.com',
+    websiteUrl: 'https://yptgrind.com',
     githubUrl: 'https://github.com/example/youngs-precision'
   },
   {
@@ -126,7 +128,8 @@ export const projects = [
     teamSize: '8 specialists',
     location: 'Los Angeles, CA',
     industry: 'Security Services',
-    demoUrl: 'https://example.com/diligent-security',
+    demoUrl: 'https://diligentsecurityservices.com',
+    websiteUrl: 'https://diligentsecurityservices.com',
     githubUrl: 'https://github.com/example/diligent-security'
   },
   {
@@ -165,7 +168,8 @@ export const projects = [
     teamSize: '8 specialists',
     location: 'Los Angeles, CA',
     industry: 'Healthcare',
-    demoUrl: 'https://example.com/sierra-medical',
+    demoUrl: 'https://sierramedicalgroup.com',
+    websiteUrl: 'https://sierramedicalgroup.com',
     githubUrl: 'https://github.com/example/sierra-medical'
   }
 ];

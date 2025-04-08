@@ -60,7 +60,7 @@ const Projects: React.FC = () => {
                       ))}
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex flex-wrap gap-3">
                       <Button
                         href={project.demoUrl}
                         className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-white px-6 py-2 rounded-lg transition-colors"
@@ -68,6 +68,15 @@ const Projects: React.FC = () => {
                         rel="noopener noreferrer"
                       >
                         <Globe className="w-5 h-5" /> Live Demo
+                      </Button>
+                      <Button
+                        href={project.websiteUrl}
+                        className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-white px-6 py-2 rounded-lg transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="outline"
+                      >
+                        <ExternalLink className="w-5 h-5" /> Visit Website
                       </Button>
                       <Button
                         to={`/projects/${project.slug}`}

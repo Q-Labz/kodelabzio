@@ -11,7 +11,8 @@ import {
   Calendar,
   Users,
   Globe,
-  FileText
+  FileText,
+  ExternalLink
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { projects } from '../data/projects';
@@ -35,6 +36,7 @@ interface Project {
   industry: string;
   demoUrl: string;
   githubUrl: string;
+  websiteUrl: string;
 }
 
 const CaseStudyDetail: React.FC = () => {
@@ -170,18 +172,40 @@ const CaseStudyDetail: React.FC = () => {
                 </div>
               </div>
 
-              {project.demoUrl && (
-                <a 
-                  href={project.demoUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full mt-6 inline-block"
-                >
-                  <Button className="w-full">
-                    <Globe className="w-5 h-5 mr-2" /> Visit Live Site
+              <div className="flex flex-wrap gap-4 mt-8">
+                {project.demoUrl && (
+                  <Button
+                    href={project.demoUrl}
+                    className="flex items-center gap-2"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Globe className="w-5 h-5" /> Live Demo
                   </Button>
-                </a>
-              )}
+                )}
+                {project.websiteUrl && (
+                  <Button
+                    href={project.websiteUrl}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="w-5 h-5" /> Visit Website
+                  </Button>
+                )}
+                {project.githubUrl && (
+                  <Button
+                    href={project.githubUrl}
+                    variant="ghost"
+                    className="flex items-center gap-2"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FileText className="w-5 h-5" /> Source Code
+                  </Button>
+                )}
+              </div>
             </motion.div>
           </div>
         </div>
