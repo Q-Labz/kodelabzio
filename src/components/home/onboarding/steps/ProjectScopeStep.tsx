@@ -2,34 +2,30 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Code2, Database } from 'lucide-react';
 import type { ProjectScope } from '../../../../types/onboarding';
+import Button from '../../../ui/Button';
 
 interface ProjectScopeStepProps {
   data: ProjectScope;
-  onChange: (updates: { projectScope: ProjectScope }) => void;
+  updateData: (updates: Partial<ProjectScope>) => void;
   errors: Record<string, string>;
+  onNext: () => void;
 }
 
-const ProjectScopeStep: React.FC<ProjectScopeStepProps> = ({ data, onChange, errors }) => {
+const ProjectScopeStep: React.FC<ProjectScopeStepProps> = ({ data, updateData, errors, onNext }) => {
   const handleArrayChange = (field: keyof Pick<ProjectScope, 'categories' | 'techStack'>, value: string) => {
     const currentValues = Array.isArray(data[field]) ? data[field] as string[] : [];
     const newValues = currentValues.includes(value)
       ? currentValues.filter((v: string) => v !== value)
       : [...currentValues, value];
     
-    onChange({
-      projectScope: {
-        ...data,
-        [field]: newValues
-      }
+    updateData({
+      [field]: newValues
     });
   };
 
   const handleDescriptionChange = (value: string) => {
-    onChange({
-      projectScope: {
-        ...data,
-        description: value
-      }
+    updateData({
+      description: value
     });
   };
 
@@ -157,6 +153,15 @@ const ProjectScopeStep: React.FC<ProjectScopeStepProps> = ({ data, onChange, err
             <p className="mt-1 text-sm text-red-500">{getFieldError('techStack')}</p>
           )}
         </div>
+        
+        <Button 
+          type="button"
+          onClick={onNext}
+          size="lg"
+          className="w-full mt-6"
+        >
+          Next Step
+        </Button>
       </div>
     </motion.div>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Projects from '../pages/Projects';
+import CaseStudyDetail from '../pages/CaseStudyDetail';
 import ServicesPage from '../pages/ServicesPage';
 import AboutPage from '../pages/AboutPage';
 import ContactPage from '../pages/ContactPage';
@@ -14,6 +15,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/projects" element={<Projects />} />
+      <Route path="/projects/:slug" element={<CaseStudyDetail />} />
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />

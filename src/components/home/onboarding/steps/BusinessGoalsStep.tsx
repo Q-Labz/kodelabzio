@@ -2,17 +2,18 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Target, Plus, X } from 'lucide-react';
 import type { BusinessGoals } from '../../../../types/onboarding';
+import Button from '../../../ui/Button';
 
 interface BusinessGoalsStepProps {
   data: BusinessGoals;
-  onChange: (data: BusinessGoals) => void;
+  updateData: (data: Partial<BusinessGoals>) => void;
   errors: Record<string, string>;
+  onNext: () => void;
 }
 
-const BusinessGoalsStep: React.FC<BusinessGoalsStepProps> = ({ data, onChange, errors }) => {
+const BusinessGoalsStep: React.FC<BusinessGoalsStepProps> = ({ data, updateData, errors, onNext }) => {
   const handleAddGoal = () => {
-    onChange({
-      ...data,
+    updateData({
       goals: [...(data.goals || []), '']
     });
   };
@@ -20,12 +21,12 @@ const BusinessGoalsStep: React.FC<BusinessGoalsStepProps> = ({ data, onChange, e
   const handleUpdateGoal = (index: number, value: string) => {
     const newGoals = [...(data.goals || [])];
     newGoals[index] = value;
-    onChange({ ...data, goals: newGoals });
+    updateData({ goals: newGoals });
   };
 
   const handleRemoveGoal = (index: number) => {
     const newGoals = (data.goals || []).filter((_, i) => i !== index);
-    onChange({ ...data, goals: newGoals });
+    updateData({ goals: newGoals });
   };
 
   return (
@@ -47,14 +48,15 @@ const BusinessGoalsStep: React.FC<BusinessGoalsStepProps> = ({ data, onChange, e
               <Target className="w-5 h-5 text-accent" />
               <h3 className="text-lg font-semibold">Project Goals *</h3>
             </div>
-            <button
+            <Button 
               type="button"
               onClick={handleAddGoal}
-              className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 transition-colors"
+              size="sm"
+              className="gap-1 text-sm text-accent hover:text-accent/80 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Goal
-            </button>
+            </Button>
           </div>
           <div className="space-y-3">
             {(data.goals || []).map((goal, index) => (
@@ -66,18 +68,19 @@ const BusinessGoalsStep: React.FC<BusinessGoalsStepProps> = ({ data, onChange, e
                   placeholder={`Goal ${index + 1}`}
                   className="flex-1 bg-deep-brown-200/40 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50"
                 />
-                <button
+                <Button 
                   type="button"
                   onClick={() => handleRemoveGoal(index)}
+                  size="sm"
                   className="p-3 text-gray-400 hover:text-red-500 transition-colors"
                 >
                   <X className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
             ))}
           </div>
-          {errors.goals && (
-            <p className="mt-1 text-sm text-red-500">{errors.goals}</p>
+          {errors['businessGoals.goals'] && (
+            <p className="mt-1 text-sm text-red-500">{errors['businessGoals.goals']}</p>
           )}
         </div>
 
@@ -88,15 +91,15 @@ const BusinessGoalsStep: React.FC<BusinessGoalsStepProps> = ({ data, onChange, e
           <textarea
             id="targetAudience"
             value={data.targetAudience}
-            onChange={(e) => onChange({ ...data, targetAudience: e.target.value })}
+            onChange={(e) => updateData({ targetAudience: e.target.value })}
             rows={3}
             className={`w-full bg-deep-brown-200/40 border ${
-              errors.targetAudience ? 'border-red-500' : 'border-white/10'
+              errors['businessGoals.targetAudience'] ? 'border-red-500' : 'border-white/10'
             } rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50`}
             placeholder="Describe your target audience and their needs..."
           />
-          {errors.targetAudience && (
-            <p className="mt-1 text-sm text-red-500">{errors.targetAudience}</p>
+          {errors['businessGoals.targetAudience'] && (
+            <p className="mt-1 text-sm text-red-500">{errors['businessGoals.targetAudience']}</p>
           )}
         </div>
 
@@ -107,17 +110,26 @@ const BusinessGoalsStep: React.FC<BusinessGoalsStepProps> = ({ data, onChange, e
           <textarea
             id="successCriteria"
             value={data.successCriteria}
-            onChange={(e) => onChange({ ...data, successCriteria: e.target.value })}
+            onChange={(e) => updateData({ successCriteria: e.target.value })}
             rows={3}
             className={`w-full bg-deep-brown-200/40 border ${
-              errors.successCriteria ? 'border-red-500' : 'border-white/10'
+              errors['businessGoals.successCriteria'] ? 'border-red-500' : 'border-white/10'
             } rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50`}
             placeholder="Define how you'll measure project success..."
           />
-          {errors.successCriteria && (
-            <p className="mt-1 text-sm text-red-500">{errors.successCriteria}</p>
+          {errors['businessGoals.successCriteria'] && (
+            <p className="mt-1 text-sm text-red-500">{errors['businessGoals.successCriteria']}</p>
           )}
         </div>
+        
+        <Button 
+          type="button"
+          onClick={onNext}
+          size="lg"
+          className="w-full mt-6"
+        >
+          Next Step
+        </Button>
       </div>
     </motion.div>
   );

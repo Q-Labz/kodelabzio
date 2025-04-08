@@ -1,17 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ContactInfo } from '../../../../types/onboarding';
+import Button from '../../../ui/Button';
 
 interface ContactInfoStepProps {
   data: ContactInfo;
   updateData: (data: Partial<ContactInfo>) => void;
-  errors: Record<string, string[]>;
+  errors: Record<string, string>;
+  onNext: () => void;
 }
 
 const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
   data,
   updateData,
-  errors
+  errors,
+  onNext
 }) => {
   const handleInputChange = (field: keyof ContactInfo, value: string) => {
     updateData({ [field]: value });
@@ -33,21 +36,21 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Company Name</label>
+          <label className="block text-sm font-medium mb-2">Name</label>
           <motion.input
             type="text"
-            value={data.companyName}
-            onChange={(e) => handleInputChange('companyName', e.target.value)}
-            placeholder="Enter your company name"
+            value={data.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+            placeholder="Enter your name"
             whileFocus={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={`w-full px-3 py-2 border rounded-lg transition-shadow ${
-              errors['companyName']
+              errors['contactInfo.name']
                 ? 'border-red-500 focus:ring-2 focus:ring-red-200'
                 : 'border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500'
             }`}
           />
-          {errors['companyName'] && (
+          {errors['contactInfo.name'] && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -55,27 +58,27 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="text-red-500 text-sm mt-1"
             >
-              {errors['companyName'][0]}
+              {errors['contactInfo.name']}
             </motion.p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Industry</label>
+          <label className="block text-sm font-medium mb-2">Company</label>
           <motion.input
             type="text"
-            value={data.industry}
-            onChange={(e) => handleInputChange('industry', e.target.value)}
-            placeholder="Enter your industry"
+            value={data.company}
+            onChange={(e) => handleInputChange('company', e.target.value)}
+            placeholder="Enter your company name"
             whileFocus={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={`w-full px-3 py-2 border rounded-lg transition-shadow ${
-              errors['industry']
+              errors['contactInfo.company']
                 ? 'border-red-500 focus:ring-2 focus:ring-red-200'
                 : 'border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500'
             }`}
           />
-          {errors['industry'] && (
+          {errors['contactInfo.company'] && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -83,7 +86,7 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="text-red-500 text-sm mt-1"
             >
-              {errors['industry'][0]}
+              {errors['contactInfo.company']}
             </motion.p>
           )}
         </div>
@@ -98,12 +101,12 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
             whileFocus={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={`w-full px-3 py-2 border rounded-lg transition-shadow ${
-              errors['email']
+              errors['contactInfo.email']
                 ? 'border-red-500 focus:ring-2 focus:ring-red-200'
                 : 'border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500'
             }`}
           />
-          {errors['email'] && (
+          {errors['contactInfo.email'] && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -111,7 +114,7 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="text-red-500 text-sm mt-1"
             >
-              {errors['email'][0]}
+              {errors['contactInfo.email']}
             </motion.p>
           )}
         </div>
@@ -126,12 +129,12 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
             whileFocus={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={`w-full px-3 py-2 border rounded-lg transition-shadow ${
-              errors['phone']
+              errors['contactInfo.phone']
                 ? 'border-red-500 focus:ring-2 focus:ring-red-200'
                 : 'border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500'
             }`}
           />
-          {errors['phone'] && (
+          {errors['contactInfo.phone'] && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -139,7 +142,7 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="text-red-500 text-sm mt-1"
             >
-              {errors['phone'][0]}
+              {errors['contactInfo.phone']}
             </motion.p>
           )}
         </div>
@@ -159,7 +162,7 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
             whileFocus={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={`w-full px-3 py-2 border rounded-lg transition-shadow ${
-              errors['preferredContact']
+              errors['contactInfo.preferredContact']
                 ? 'border-red-500 focus:ring-2 focus:ring-red-200'
                 : 'border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500'
             }`}
@@ -169,7 +172,7 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
             <option value="phone">Phone</option>
             <option value="messaging">Messaging</option>
           </motion.select>
-          {errors['preferredContact'] && (
+          {errors['contactInfo.preferredContact'] && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -177,10 +180,19 @@ const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="text-red-500 text-sm mt-1"
             >
-              {errors['preferredContact'][0]}
+              {errors['contactInfo.preferredContact']}
             </motion.p>
           )}
         </div>
+        
+        <Button
+          type="button"
+          onClick={onNext}
+          size="lg"
+          className="w-full mt-6"
+        >
+          Submit
+        </Button>
       </div>
     </motion.div>
   );

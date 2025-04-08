@@ -2,11 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { TechnicalSpecs } from '../../../../types/onboarding';
 import MultiSelect from '../../../common/MultiSelect';
+import Button from '../../../ui/Button';
 
 interface TechnicalSpecsStepProps {
   data: TechnicalSpecs;
   updateData: (data: Partial<TechnicalSpecs>) => void;
-  errors: Record<string, string[]>;
+  errors: Record<string, string>;
+  onNext: () => void;
 }
 
 const platformOptions = [
@@ -52,7 +54,8 @@ const complianceOptions = [
 const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
   data,
   updateData,
-  errors
+  errors,
+  onNext
 }) => {
   const handlePlatformChange = (platform: string, checked: boolean) => {
     updateData({
@@ -113,7 +116,7 @@ const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
             ))}
           </div>
           {errors['platforms'] && (
-            <p className="text-red-500 text-sm mt-1">{errors['platforms'][0]}</p>
+            <p className="text-red-500 text-sm mt-1">{errors['platforms']}</p>
           )}
         </div>
 
@@ -122,7 +125,7 @@ const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
           options={integrationOptions}
           value={data.integrations}
           onChange={(values: string[]) => updateData({ integrations: values })}
-          error={errors['integrations']?.[0]}
+          error={errors['integrations']}
         />
 
         <div className="space-y-4">
@@ -137,7 +140,7 @@ const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
                 security: { ...data.security, authentication: values }
               })
             }
-            error={errors['security.authentication']?.[0]}
+            error={errors['security.authentication']}
           />
 
           <MultiSelect
@@ -149,7 +152,7 @@ const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
                 security: { ...data.security, dataProtection: values }
               })
             }
-            error={errors['security.dataProtection']?.[0]}
+            error={errors['security.dataProtection']}
           />
 
           <MultiSelect
@@ -161,7 +164,7 @@ const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
                 security: { ...data.security, compliance: values }
               })
             }
-            error={errors['security.compliance']?.[0]}
+            error={errors['security.compliance']}
           />
         </div>
 
@@ -184,7 +187,7 @@ const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               {errors['scale.users'] && (
-                <p className="text-red-500 text-sm mt-1">{errors['scale.users'][0]}</p>
+                <p className="text-red-500 text-sm mt-1">{errors['scale.users']}</p>
               )}
             </div>
 
@@ -203,7 +206,7 @@ const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               {errors['scale.storage'] && (
-                <p className="text-red-500 text-sm mt-1">{errors['scale.storage'][0]}</p>
+                <p className="text-red-500 text-sm mt-1">{errors['scale.storage']}</p>
               )}
             </div>
 
@@ -222,12 +225,20 @@ const TechnicalSpecsStep: React.FC<TechnicalSpecsStepProps> = ({
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               {errors['scale.bandwidth'] && (
-                <p className="text-red-500 text-sm mt-1">{errors['scale.bandwidth'][0]}</p>
+                <p className="text-red-500 text-sm mt-1">{errors['scale.bandwidth']}</p>
               )}
             </div>
           </div>
         </div>
       </div>
+      <Button
+        type="button"
+        onClick={onNext}
+        size="lg"
+        className="w-full mt-6"
+      >
+        Next Step
+      </Button>
     </motion.div>
   );
 };

@@ -14,14 +14,16 @@ interface StepContentProps {
     step: T,
     data: Partial<OnboardingData[T]>
   ) => void;
-  errors: Record<string, string[]>;
+  errors: Record<string, string>;
+  onNext: () => void;
 }
 
 const StepContent: React.FC<StepContentProps> = ({
   currentStep,
   formData,
   updateFormData,
-  errors
+  errors,
+  onNext
 }) => {
   const slideDirection = React.useRef(0);
   const variants = React.useMemo(
@@ -39,6 +41,7 @@ const StepContent: React.FC<StepContentProps> = ({
               updateFormData('projectScope', data)
             }
             errors={errors}
+            onNext={onNext}
           />
         );
       case 'businessGoals':
@@ -49,6 +52,7 @@ const StepContent: React.FC<StepContentProps> = ({
               updateFormData('businessGoals', data)
             }
             errors={errors}
+            onNext={onNext}
           />
         );
       case 'technicalSpecs':
@@ -59,6 +63,7 @@ const StepContent: React.FC<StepContentProps> = ({
               updateFormData('technicalSpecs', data)
             }
             errors={errors}
+            onNext={onNext}
           />
         );
       case 'contactInfo':
@@ -69,6 +74,7 @@ const StepContent: React.FC<StepContentProps> = ({
               updateFormData('contactInfo', data)
             }
             errors={errors}
+            onNext={onNext}
           />
         );
       default:
